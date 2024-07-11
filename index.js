@@ -42,6 +42,34 @@ function getTime() {
     }, 1000)
 }
 
+function getWeather() {
+    navigator.geolocation.getCurrentPosition(position => {
+        // success message
+        const lat = position.coords.latitude
+        const lon = position.coords.longitude
+        fetch(`https://apis.scrimba.com/openweathermap/data/2.5/weather?lat=${lat}&lon=${lon}&units=$metric`)
+            .then(res=>{
+                if(!res.ok){
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+                return res.json();
+            })
+            .then(data =>{
+                console.log(data.weather[0]);
+                const iconUrl = `http://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png`
+                document.getElementById("weather").innerHTML = `
+                    <img src=${iconUrl} />
+                    <p class="weather-temp">${Math.round(data.main.temp)}º</p>
+                    <p class="weather-city">${data.name}</p>
+                `
+
+            })
+            .catch(err => {
+                console.error("Error fetching weather data:", err);
+            })           
+    });
+}
+
 function main() {
     // load the backgroundImage
     loadBackground();
@@ -49,6 +77,8 @@ function main() {
     getCryptoData();
     // get current time
     const interval = getTime();
+    // get weather
+    getWeather();
 }
 
 main();
